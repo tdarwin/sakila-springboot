@@ -1,4 +1,31 @@
 services:
+  otel-collector:
+    image: ghcr.io/tdarwin/tdarwin-otel-collector:latest
+    hostname: otel-collector
+    restart: always
+    environment:
+      HONEYCOMB_API_KEY: "YOUR_HONEYCOMB_API_KEY_GOES_HERE"
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./collector_config/otelcol-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+    networks:
+      - honeycomb
+
+  app:
+    build: .
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=host.name=sakila-app-1
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - otel-collector
+    networks:
+      - honeycomb
+
   db:
     image: postgres
     restart: always
@@ -8,12 +35,39 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    networks:
+      - honeycomb
 
+  db-setup:
+    image: postgres
+    depends_on:
+      - db
+    environment:
+      PGPASSWORD: admin
+    volumes:
+      - ./db_setup:/db_setup
+    entrypoint:
+      - /usr/bin/bash
+      - -c
+      - |
+        sleep 5
+        psql -h db -U postgres -c 'create database sakila;'
+        psql -h db -U postgres -d sakila -f /db_setup/postgres-sakila-schema.sql
+        psql -h db -U postgres -d sakila -f /db_setup/postgres-sakila-insert-data.sql
+    networks:
+      - honeycomb
+  
   adminer:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8888:8080
+    networks:
+      - honeycomb
 
 volumes:
   pgdata:
+
+networks:
+  honeycomb:
+    driver: bridge

@@ -1,0 +1,59 @@
+exporters:
+  nop:
+  otlp:
+    endpoint: api.honeycomb.io:443
+    headers:
+      x-honeycomb-team: "${HONEYCOMB_API_KEY}"
+      x-honeycomb-dataset: "sakila-metrics"
+  debug:
+    verbosity: detailed
+
+processors:
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 800
+    spike_limit_mib: 250
+  batch: {}
+  metricsasattributes:
+    # time before state metrics are removed from cache (default 5m)
+    cache_ttl: 5m
+
+    metrics_groups:
+      # name of the group (must be unique across all groups)
+      - name: java_app
+        target_selectors:
+          spans:
+            - attribute_type: resource
+              name: host.name
+        metrics_selectors:
+          - attribute_type: resource
+            name: host.name
+        metrics_to_add:
+          - instrumentation_scope: io.opentelemetry.runtime-telemetry-java*
+            metrics:
+              - name: '*'
+          - instrumentation_scope: io.opentelemetry.hikaricp*
+            metrics:
+              - name: '*'
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+service:
+  telemetry:
+    logs:
+      level: debug
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [metricsasattributes, memory_limiter, batch]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp]
+      processors: [metricsasattributes, memory_limiter, batch]
+      exporters: [nop]
