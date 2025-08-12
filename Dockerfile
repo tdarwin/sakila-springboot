@@ -34,8 +34,9 @@ COPY --from=build /app/target/*.jar /app/app.jar
 
 # Expose the application port
 EXPOSE 8080
+EXPOSE 1099
 
-# Set the command to run the application with OpenTelemetry
+# Set the command to run the application with OpenTelemetry and JMX
 ENTRYPOINT ["java", \
   "-javaagent:/app/opentelemetry-javaagent.jar", \
   "-Dotel.service.name=sakila-demo", \
@@ -44,4 +45,11 @@ ENTRYPOINT ["java", \
   "-Dotel.exporter.otlp.endpoint=http://otel-collector:4317", \
   "-Dotel.exporter.otlp.protocol=grpc", \
   "-Dotel.metric.export.interval=15000", \
+  "-Dcom.sun.management.jmxremote", \
+  "-Dcom.sun.management.jmxremote.port=1099", \
+  "-Dcom.sun.management.jmxremote.rmi.port=1099", \
+  "-Dcom.sun.management.jmxremote.local.only=false", \
+  "-Dcom.sun.management.jmxremote.authenticate=false", \
+  "-Dcom.sun.management.jmxremote.ssl=false", \
+  "-Djava.rmi.server.hostname=0.0.0.0", \
   "-jar", "/app/app.jar"]

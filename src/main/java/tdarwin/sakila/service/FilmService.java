@@ -6,6 +6,7 @@ import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
 import tdarwin.sakila.model.Film;
 import tdarwin.sakila.repository.FilmRepository;
+import tdarwin.sakila.metrics.MovieSearchMetrics;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -21,6 +22,9 @@ public class FilmService {
 
     @Autowired
     private FilmRepository filmRepository;
+    
+    @Autowired
+    private MovieSearchMetrics movieSearchMetrics;
 
     public List<Film> searchFilmsByTitle(String title) {
         Span span = tracer.spanBuilder("searchFilmsByTitle").startSpan();
@@ -28,6 +32,9 @@ public class FilmService {
             span.setAttribute("title.query", title);
             
             List<Film> films = filmRepository.findByTitleContainingIgnoreCase(title);
+
+            // Record JMX metrics for movie search
+            movieSearchMetrics.recordSearch(films.size());
 
             if (films.isEmpty()) {
                 logger.warn("No films found for title: " + title);
