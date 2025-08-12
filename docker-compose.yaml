@@ -1,10 +1,10 @@
 services:
   otel-collector:
-    image: ghcr.io/tdarwin/tdarwin-otel-collector:latest
+    image: otel/opentelemetry-collector-contrib:latest
     hostname: otel-collector
     restart: always
     environment:
-      HONEYCOMB_API_KEY: "YOUR_HONEYCOMB_API_KEY_GOES_HERE"
+      HONEYCOMB_API_KEY: "hcaik_01j6j4qfxf4q49net4hphdd6252cbas11xj2h5d64zvf7ppqhrw61ncb8m"
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
       - ./collector_config/otelcol-config.yaml:/etc/otel-collector-config.yaml
@@ -21,6 +21,8 @@ services:
     ports:
       - "8080:8080"
       - "1099:1099"
+    volumes:
+      - ./agent_config/jmx.yaml:/jmx.yaml
     depends_on:
       - db
       - otel-collector
