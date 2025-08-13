@@ -46,7 +46,6 @@ ENTRYPOINT ["java", \
   "-Dotel.exporter.otlp.protocol=grpc", \
   "-Dotel.metric.export.interval=10000", \
   "-Dotel.jmx.config=/jmx-rules.yaml", \
-  "-Dotel.jmx.enabled=true", \
   "-Dcom.sun.management.jmxremote", \
   "-Dcom.sun.management.jmxremote.port=1099", \
   "-Dcom.sun.management.jmxremote.rmi.port=1099", \
