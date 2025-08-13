@@ -45,7 +45,7 @@ ENTRYPOINT ["java", \
   "-Dotel.exporter.otlp.endpoint=http://otel-collector:4317", \
   "-Dotel.exporter.otlp.protocol=grpc", \
   "-Dotel.metric.export.interval=10000", \
-  "-Dotel.jmx.config=/jmx.yaml", \
+  "-Dotel.jmx.config=/jmx-rules.yaml", \
   "-Dotel.jmx.enabled=true", \
   "-Dcom.sun.management.jmxremote", \
   "-Dcom.sun.management.jmxremote.port=1099", \

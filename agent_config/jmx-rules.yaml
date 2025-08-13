@@ -1,17 +1,19 @@
 ---
 rules:
   - bean: sakila:type=MovieSearchMetrics,name=movieSearchMetrics
-    type: counter
     mapping:
       AverageMoviesPerSearch:
         metric: movies.per_search.avg
         desc: The average number of movies returned per search
         unit: "{movies}"
+        type: counter
       TotalMoviesReturned:
         metric: movies.returned.total
         desc: The total number of movies returned
         unit: "{movies}"
+        type: counter
       TotalSearchOperations:
         metric: movies.search.operations.total
         desc: The total number of search operations
         unit: "{searches}"
+        type: counter

@@ -22,7 +22,7 @@ services:
       - "8080:8080"
       - "1099:1099"
     volumes:
-      - ./agent_config/jmx.yaml:/jmx.yaml
+      - ./agent_config/jmx-rules.yaml:/jmx-rules.yaml
     depends_on:
       - db
       - otel-collector
